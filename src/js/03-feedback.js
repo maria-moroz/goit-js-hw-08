@@ -13,39 +13,40 @@ const formData = {};
 refs.form.addEventListener('submit', onFormSubmit);
 refs.form.addEventListener('input', throttle(onFormInput, 500));
 
-const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+fillFormFieldsOnReset();
 
-fillFormFieldsOnReset(savedData);
+function fillFormFieldsOnReset() {
+    const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
 
-function fillFormFieldsOnReset(data) {
-    if (!data) {
+    if (!savedData) {
         return;
     }
 
-    if (data.hasOwnProperty('email')) {
-        refs.formEmailField.value = data.email;
-    }
+    refs.formEmailField.value = savedData.email;
+    refs.formMessageField.value = savedData.message;
 
-    if (data.hasOwnProperty('message')) {
-        refs.formMessageField.value = data.message;
-    }
 }
 
 function onFormSubmit(e) {
     e.preventDefault();
 
-    const data = {
-        email: refs.formEmailField.value,
-        message: refs.formMessageField.value,
+    const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+    if (savedData) {
+        if ((savedData.email !== '' && savedData.message !== '')) {
+            e.currentTarget.reset();
+            localStorage.removeItem(STORAGE_KEY);
+            console.log(savedData);
+            return;
+        }
     }
 
-    e.currentTarget.reset();
-    localStorage.removeItem(STORAGE_KEY);
-
-    console.log(data);
+    window.alert('Please, fill in all fields!')
+    return;
 }
 
 function onFormInput(e) {
-    formData[e.target.name] = e.target.value;
+    formData['email'] = refs.formEmailField.value;
+    formData['message'] = refs.formMessageField.value;
     localStorage.setItem(STORAGE_KEY , JSON.stringify(formData));
 }
